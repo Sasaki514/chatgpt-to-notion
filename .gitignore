@@ -1,0 +1,7 @@
+# すべて無視
+*
+
+# 以下だけ管理対象（! = 無視解除）
+!.gitignore
+!chatgpt_to_notion.py
+!daily_chatgpt_summary.py
