@@ -369,6 +369,7 @@ def markdown_to_notion_blocks(markdown_text, max_chars_per_block=1900):
     blocks = []
     lines = markdown_text.split('\n')
     current_content = ""
+    in_next_action = False  # 「次のアクション」説明ブロック内かどうか
 
     for line_num, line in enumerate(lines, 1):
 
@@ -381,6 +382,9 @@ def markdown_to_notion_blocks(markdown_text, max_chars_per_block=1900):
         if is_heading3:
             # 現在のコンテンツがある場合は保存
             if current_content.strip():
+                # 「次のアクション」説明の直後にだけ改行を追加
+                if in_next_action:
+                    current_content = current_content.rstrip('\n') + '\n\n'
                 blocks.append({
                     "object": "block",
                     "type": "paragraph",
@@ -389,6 +393,7 @@ def markdown_to_notion_blocks(markdown_text, max_chars_per_block=1900):
                     }
                 })
                 current_content = ""
+                in_next_action = False
 
             # 小見出しブロックを追加（###の後の空白を適切に処理、空の見出しは無視）
             heading_text = line[3:].strip()  # "###" を除去してからstrip
@@ -422,6 +427,9 @@ def markdown_to_notion_blocks(markdown_text, max_chars_per_block=1900):
         elif is_heading2:
             # 現在のコンテンツがある場合は保存
             if current_content.strip():
+                # 「次のアクション」説明の直後にだけ改行を追加
+                if in_next_action:
+                    current_content = current_content.rstrip('\n') + '\n\n'
                 blocks.append({
                     "object": "block",
                     "type": "paragraph",
@@ -430,6 +438,7 @@ def markdown_to_notion_blocks(markdown_text, max_chars_per_block=1900):
                     }
                 })
                 current_content = ""
+                in_next_action = False
 
             # 見出しブロックを追加（空の見出しは無視）
             heading_text = line[2:].strip()  # "##" を除去してからstrip
@@ -463,6 +472,9 @@ def markdown_to_notion_blocks(markdown_text, max_chars_per_block=1900):
         elif is_heading1:
             # 現在のコンテンツがある場合は保存
             if current_content.strip():
+                # 「次のアクション」説明の直後にだけ改行を追加
+                if in_next_action:
+                    current_content = current_content.rstrip('\n') + '\n\n'
                 blocks.append({
                     "object": "block",
                     "type": "paragraph",
@@ -471,6 +483,7 @@ def markdown_to_notion_blocks(markdown_text, max_chars_per_block=1900):
                     }
                 })
                 current_content = ""
+                in_next_action = False
 
             # 大見出しブロックを追加（空の見出しは無視）
             heading_text = line[1:].strip()  # "#" を除去してからstrip
@@ -504,11 +517,10 @@ def markdown_to_notion_blocks(markdown_text, max_chars_per_block=1900):
         else:
             # 通常のテキスト（空行は無視）
             if line.strip():  # 空行でない場合のみ追加
-                # 「次のアクション」の行の場合は追加の改行を入れる
+                # 「次のアクション」開始行を検知（説明ブロック全体の終端で改行を追加する）
                 if line.strip().startswith('**次のアクション:**'):
-                    current_content += line + '\n\n'  # 追加の改行
-                else:
-                    current_content += line + '\n'
+                    in_next_action = True
+                current_content += line + '\n'
 
             # 文字数制限チェック
             if len(current_content) > max_chars_per_block:
@@ -524,6 +536,9 @@ def markdown_to_notion_blocks(markdown_text, max_chars_per_block=1900):
 
     # 残りのコンテンツがある場合は保存
     if current_content.strip():
+        # 文末が「次のアクション」説明で終わっている場合は改行を追加
+        if in_next_action:
+            current_content = current_content.rstrip('\n') + '\n\n'
         blocks.append({
             "object": "block",
             "type": "paragraph",
@@ -1059,7 +1074,8 @@ def main():
 
     # 週報作成チェック
     print("\n=== 週報作成チェック ===")
-    workdir = os.getenv("WORK_DIR", os.path.join(os.path.dirname(__file__), "ChatGPT_Notion"))
+    workdir = os.getenv("WORK_DIR", os.path.join(
+        os.path.dirname(__file__), "ChatGPT_Notion"))
 
     # 週報作成判断の詳細ログ
     print("🔍 週報作成判断プロセス:")
