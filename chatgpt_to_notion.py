@@ -810,7 +810,7 @@ def main():
         description="ZIPファイルから差分集約→Notion登録")
     parser.add_argument("zip_file", nargs="?", default=None,
                         help="ChatGPTエクスポートZIPファイルのパス（未指定時は自動検索）")
-    parser.add_argument("--workdir", default=os.getenv("WORK_DIR", "./ChatGPT_Notion"),
+    parser.add_argument("--workdir", default=os.getenv("WORK_DIR", os.path.join(os.path.dirname(__file__), "ChatGPT_Notion")),
                         help="作業ディレクトリ（state.jsonなど）")
     parser.add_argument("--from-date", default="2025-09-18",
                         help="処理する日付の開始日（YYYY-MM-DD、既定: 2025-09-18）")
@@ -1059,7 +1059,7 @@ def main():
 
     # 週報作成チェック
     print("\n=== 週報作成チェック ===")
-    workdir = os.getenv("WORK_DIR", "./ChatGPT_Notion")
+    workdir = os.getenv("WORK_DIR", os.path.join(os.path.dirname(__file__), "ChatGPT_Notion"))
 
     # 週報作成判断の詳細ログ
     print("🔍 週報作成判断プロセス:")

@@ -401,7 +401,8 @@ def main():
 
     # 3. 週報作成チェック
     print("\n=== 週報作成チェック ===")
-    workdir = os.getenv("WORK_DIR", "./ChatGPT_Notion")
+    workdir = os.getenv("WORK_DIR", os.path.join(
+        os.path.dirname(__file__), "ChatGPT_Notion"))
 
     # 週報作成判断の詳細ログ
     print("🔍 週報作成判断プロセス:")
