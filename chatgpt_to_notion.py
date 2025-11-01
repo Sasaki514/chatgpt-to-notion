@@ -454,21 +454,23 @@ def markdown_to_notion_blocks(markdown_text, max_chars_per_block=1900):
                         "rich_text": parse_rich_text(heading_text)
                     }
                 })
-                # トピック間の行間を空けるために空の段落を2つ追加
-                blocks.append({
-                    "object": "block",
-                    "type": "paragraph",
-                    "paragraph": {
-                        "rich_text": [{"type": "text", "text": {"content": ""}}]
-                    }
-                })
-                blocks.append({
-                    "object": "block",
-                    "type": "paragraph",
-                    "paragraph": {
-                        "rich_text": [{"type": "text", "text": {"content": ""}}]
-                    }
-                })
+                # 日付の見出し（YYYY-MM-DD形式）の場合は空行を追加しない
+                # それ以外の見出し2の場合は、トピック間の行間を空けるために空の段落を2つ追加
+                if not re.match(r'^\d{4}-\d{2}-\d{2}', heading_text):
+                    blocks.append({
+                        "object": "block",
+                        "type": "paragraph",
+                        "paragraph": {
+                            "rich_text": [{"type": "text", "text": {"content": ""}}]
+                        }
+                    })
+                    blocks.append({
+                        "object": "block",
+                        "type": "paragraph",
+                        "paragraph": {
+                            "rich_text": [{"type": "text", "text": {"content": ""}}]
+                        }
+                    })
         elif is_heading1:
             # 現在のコンテンツがある場合は保存
             if current_content.strip():
